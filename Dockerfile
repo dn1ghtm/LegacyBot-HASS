@@ -13,8 +13,9 @@ RUN npm ci --only=production
 
 COPY . .
 
-RUN addgroup -g 1000 -S nodejs && \
-    adduser -S nodejs -u 1000
+# Create user and group with fallback IDs
+RUN addgroup -g 1000 -S nodejs 2>/dev/null || addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1000 -G nodejs 2>/dev/null || adduser -S nodejs -u 1001 -G nodejs
 
 RUN chown -R nodejs:nodejs /app
 USER nodejs
