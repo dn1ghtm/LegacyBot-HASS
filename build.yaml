@@ -1,0 +1,16 @@
+---
+args:
+  BUILD_FROM: "node:18-alpine"
+labels:
+  io.hass.type: addon
+  io.hass.version: "1.0.0"
+base: "node:18-alpine"
+stages:
+  build:
+    - name: "legacy-league-bot"
+      base: "node:18-alpine"
+      labels:
+        io.hass.type: addon
+        io.hass.version: "1.0.0"
+      args:
+        BUILD_FROM: "node:18-alpine" 

@@ -1,84 +1,104 @@
-# LL Value Bot
+# Legacy League Discord Bot - Home Assistant Add-on
 
-A Discord bot that calculates player value based on various stats like tackles, interceptions, saves, goals, passes, assists, dribbles, shots, and games played.
+A Discord bot for Legacy League with player value calculation, event management, and team coordination features.
 
 ## Features
 
-- Calculate player value based on predefined stat weights
-- Display detailed breakdown of value calculation
-- Simple command interface
+- **Player Value Calculator**: Calculate player values based on stats
+- **Event Management**: Create and manage Discord scheduled events with RSVP
+- **Team Management**: Manage teams, leaders, and player signings
+- **Slash Commands**: Easy-to-use Discord slash commands
+- **Data Persistence**: Settings and team data persist across restarts
 
-## Stat Weights
+## Installation
 
-The bot uses the following weights for each stat:
-
-- Tackles: 200
-- Interceptions: 100
-- Saves: 500
-- Goals: 600
-- Passes: 250
-- Assists: 400
-- Dribbles: 100
-- Shots: 300
-- Games: 200
-
-## Setup
-
-1. Clone this repository
-2. Install dependencies:
+1. Add this repository to your Home Assistant add-on store:
    ```
-   npm install
+   https://github.com/dn1ghtm/LegacyBot-HASS
    ```
-3. Create a Discord bot on the [Discord Developer Portal](https://discord.com/developers/applications)
-4. Get your bot token and add it to the `.env` file:
-   ```
-   DISCORD_TOKEN=your_discord_bot_token_here
-   ```
-5. Invite the bot to your server with the following permissions:
-   - Read Messages/View Channels
+
+2. Install the "Legacy League Discord Bot" add-on
+
+3. Configure your Discord bot token in the add-on options
+
+4. Start the add-on
+
+## Configuration
+
+### Required Settings
+
+- **discord_token**: Your Discord bot token from the Discord Developer Portal
+
+### Optional Settings
+
+- **log_level**: Logging level (debug, info, warning, error, critical)
+
+## Discord Bot Setup
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Create a new application
+3. Go to the "Bot" section and create a bot
+4. Copy the bot token and add it to the add-on configuration
+5. Enable these permissions:
    - Send Messages
-   - Embed Links
    - Use Slash Commands
-   
-   Make sure to enable the "applications.commands" scope when generating the invite URL.
+   - Manage Events
+   - Manage Roles
+   - Read Message History
+6. Generate an invite URL with the `applications.commands` scope
+7. Invite the bot to your server
 
-## Usage
+## Bot Commands
 
-Start the bot:
-```
-npm start
-```
+### Player Value Commands
+- `/value <player_name>` - Calculate player value
+- `/compare <player1> <player2>` - Compare two players
 
-### Commands
+### Event Commands
+- `/event create <title> <date> <time>` - Create a scheduled event
+- `/event list` - List upcoming events
+- `/event rsvp <event_id> <response>` - RSVP to an event
 
-- `/value` - Calculate player value (interactive slash command with fields for each stat)
-- `/help` - Display help information
+### Team Commands
+- `/team create <team_name> <leader_id>` - Create a new team
+- `/team join <team_name> <player_id>` - Add player to team
+- `/team leave <team_name> <player_id>` - Remove player from team
+- `/team list` - List all teams
 
-### Example
+### Settings Commands
+- `/settings coaches_channel <channel_id>` - Set coaches channel
+- `/settings timezone <timezone>` - Set default timezone
 
-Use the `/value` command and fill in all the required fields:
+## Data Storage
 
-- tackles: 10
-- inters: 5
-- saves: 2
-- goals: 20
-- passes: 150
-- assists: 15
-- dribbles: 30
-- shots: 40
-- games: 50
+The add-on stores data in the `/data` directory:
+- `bot_settings.json` - Bot configuration and guild settings
+- `teams.json` - Team data and member information
 
-This will calculate the player value based on:
-- 10 tackles
-- 5 interceptions
-- 2 saves
-- 20 goals
-- 150 passes
-- 15 assists
-- 30 dribbles
-- 40 shots
-- 50 games
+This data persists across add-on updates and restarts.
 
-## Customization
+## Troubleshooting
 
-You can modify the stat weights in the `index.js` file by changing the values in the `STAT_WEIGHTS` object.
+### Bot not responding
+- Check that the Discord token is correct
+- Verify the bot has the required permissions
+- Check the add-on logs for errors
+
+### Commands not working
+- Ensure the bot has the "Use Slash Commands" permission
+- Check that slash commands are registered in your Discord server
+
+### Data not persisting
+- Verify the add-on has write access to the `/data` directory
+- Check the add-on logs for file permission errors
+
+## Support
+
+For issues and questions:
+- Check the add-on logs in Home Assistant
+- Review the Discord bot permissions
+- Ensure all required environment variables are set
+
+## License
+
+This add-on is provided as-is for personal use.
