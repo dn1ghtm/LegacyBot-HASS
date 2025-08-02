@@ -1,4 +1,9 @@
-require('dotenv').config();
+// Load environment variables - support both .env file and Home Assistant add-on environment
+try {
+  require('dotenv').config();
+} catch (e) {
+  console.log('dotenv not available, using environment variables');
+}
 const { Client, GatewayIntentBits, EmbedBuilder, REST, Routes, SlashCommandBuilder, ActivityType, ButtonBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Events, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel, StringSelectMenuBuilder, Collection } = require('discord.js');
 const fs = require('fs');
 const SETTINGS_FILE = 'bot_settings.json';
@@ -1378,9 +1383,13 @@ process.on('unhandledRejection', err => {
 
 // Ensure client.login is at the end and check for token
 if (!process.env.DISCORD_TOKEN || process.env.DISCORD_TOKEN === 'your_token_here') {
-  console.error('❌ DISCORD_TOKEN is missing or invalid. Please set it in your .env file.');
+  console.error('❌ DISCORD_TOKEN is missing or invalid. Please set it in your Home Assistant add-on configuration.');
   process.exit(1);
 }
+
+console.log('🤖 Starting Legacy League Discord Bot...');
+console.log('📊 Bot features: Player value calculator, event management, team coordination');
+
 client.login(process.env.DISCORD_TOKEN);
 
 // Global DM logger and simple DM reply for debugging
