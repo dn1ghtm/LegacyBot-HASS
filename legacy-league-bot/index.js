@@ -5,7 +5,12 @@ console.log('process.env.DISCORD_TOKEN length:', process.env.DISCORD_TOKEN ? pro
 console.log('process.env.DISCORD_TOKEN first 10 chars:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.substring(0, 10) + '...' : 'undefined');
 console.log('All environment variables:', Object.keys(process.env).join(', '));
 
-if (process.env.DISCORD_TOKEN) {
+// Check if we're running in Home Assistant (has HASSIO_TOKEN)
+if (process.env.HASSIO_TOKEN) {
+  console.log('🏠 Running in Home Assistant environment');
+  console.log('Using DISCORD_TOKEN from Home Assistant environment variables');
+  // Don't load .env file when running in Home Assistant
+} else if (process.env.DISCORD_TOKEN) {
   console.log('Using DISCORD_TOKEN from environment variables');
 } else {
   try {
