@@ -1,5 +1,5 @@
 name: "Legacy League Discord Bot"
-version: "1.0.1"
+version: "1.0.2"
 slug: "legacy-league-bot"
 description: "Discord bot for Legacy League with player value calculation and event management"
 arch:
@@ -10,6 +10,12 @@ arch:
   - i386
 startup: application
 init: false
+ingress: true
+ingress_port: 3000
+ingress_entry: /
+panel_icon: mdi:discord
+panel_title: "Legacy League Bot"
+panel_admin: true
 ports:
   3000/tcp: 3000
 map:
