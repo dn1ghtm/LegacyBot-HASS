@@ -1,0 +1,13 @@
+{
+  "coachesChannelId": "1397179400906211328",
+  "guilds": {
+    "1377456594631004370": {
+      "coachesChannelId": "1396943056028041276"
+    },
+    "840184141349650444": {
+      "defaultTimezone": "Europe/Budapest",
+      "coachesChannelId": "1331294731401171014",
+      "signChannelId": "1339333712994897962"
+    }
+  }
+}
