@@ -14,6 +14,12 @@ export NODE_ENV=production
 LOG_LEVEL=$(bashio::config 'log_level')
 export LOG_LEVEL=${LOG_LEVEL:-info}
 
+# Debug logging
+bashio::log.info "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
+bashio::log.info "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
+bashio::log.info "NODE_ENV: $NODE_ENV"
+bashio::log.info "LOG_LEVEL: $LOG_LEVEL"
+
 # Create data directory and ensure data persistence
 mkdir -p /data
 

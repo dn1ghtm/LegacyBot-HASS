@@ -1,4 +1,10 @@
 // Load environment variables - prioritize Home Assistant add-on environment over .env file
+console.log('🔍 Environment variable debugging:');
+console.log('process.env.DISCORD_TOKEN exists:', !!process.env.DISCORD_TOKEN);
+console.log('process.env.DISCORD_TOKEN length:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : 0);
+console.log('process.env.DISCORD_TOKEN first 10 chars:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.substring(0, 10) + '...' : 'undefined');
+console.log('All environment variables:', Object.keys(process.env).join(', '));
+
 if (process.env.DISCORD_TOKEN) {
   console.log('Using DISCORD_TOKEN from environment variables');
 } else {
