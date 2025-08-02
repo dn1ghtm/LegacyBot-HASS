@@ -1,5 +1,5 @@
 name: "Legacy League Discord Bot"
-version: "1.0.5"
+version: "1.0.6"
 slug: "legacy-league-bot"
 description: "Discord bot for Legacy League with player value calculation and event management"
 arch:
