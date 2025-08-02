@@ -1,8 +1,13 @@
-// Load environment variables - support both .env file and Home Assistant add-on environment
-try {
-  require('dotenv').config();
-} catch (e) {
-  console.log('dotenv not available, using environment variables');
+// Load environment variables - prioritize Home Assistant add-on environment over .env file
+if (process.env.DISCORD_TOKEN) {
+  console.log('Using DISCORD_TOKEN from environment variables');
+} else {
+  try {
+    require('dotenv').config();
+    console.log('Loaded environment variables from .env file');
+  } catch (e) {
+    console.log('dotenv not available, using environment variables');
+  }
 }
 const { Client, GatewayIntentBits, EmbedBuilder, REST, Routes, SlashCommandBuilder, ActivityType, ButtonBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Events, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel, StringSelectMenuBuilder, Collection } = require('discord.js');
 const fs = require('fs');
@@ -1382,10 +1387,16 @@ process.on('unhandledRejection', err => {
 });
 
 // Ensure client.login is at the end and check for token
+console.log('🔍 Checking DISCORD_TOKEN...');
+console.log('Environment variables available:', Object.keys(process.env).filter(key => key.includes('DISCORD')).join(', '));
+
 if (!process.env.DISCORD_TOKEN || process.env.DISCORD_TOKEN === 'your_token_here') {
   console.error('❌ DISCORD_TOKEN is missing or invalid. Please set it in your Home Assistant add-on configuration.');
+  console.error('Available environment variables:', Object.keys(process.env).join(', '));
   process.exit(1);
 }
+
+console.log('✅ DISCORD_TOKEN found and valid');
 
 console.log('🤖 Starting Legacy League Discord Bot...');
 console.log('📊 Bot features: Player value calculator, event management, team coordination');
