@@ -4,15 +4,18 @@ console.log('process.env.DISCORD_TOKEN exists:', !!process.env.DISCORD_TOKEN);
 console.log('process.env.DISCORD_TOKEN length:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : 0);
 console.log('process.env.DISCORD_TOKEN first 10 chars:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.substring(0, 10) + '...' : 'undefined');
 console.log('All environment variables:', Object.keys(process.env).join(', '));
+console.log('HASSIO_TOKEN exists:', !!process.env.HASSIO_TOKEN);
 
 // Check if we're running in Home Assistant (has HASSIO_TOKEN)
 if (process.env.HASSIO_TOKEN) {
   console.log('🏠 Running in Home Assistant environment');
   console.log('Using DISCORD_TOKEN from Home Assistant environment variables');
+  console.log('Skipping .env file loading in Home Assistant');
   // Don't load .env file when running in Home Assistant
 } else if (process.env.DISCORD_TOKEN) {
   console.log('Using DISCORD_TOKEN from environment variables');
 } else {
+  console.log('No DISCORD_TOKEN in environment, trying .env file...');
   try {
     require('dotenv').config();
     console.log('Loaded environment variables from .env file');

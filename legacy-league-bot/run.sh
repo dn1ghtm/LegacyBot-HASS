@@ -1,5 +1,6 @@
 #!/usr/bin/with-contenv bashio
 
+echo "🚀 RUN.SH SCRIPT EXECUTED - Legacy League Discord Bot"
 bashio::log.info "Starting Legacy League Discord Bot..."
 
 # Check if Discord token is configured
@@ -19,6 +20,12 @@ bashio::log.info "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
 bashio::log.info "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
 bashio::log.info "NODE_ENV: $NODE_ENV"
 bashio::log.info "LOG_LEVEL: $LOG_LEVEL"
+
+# Check if .env file exists
+if [ -f /app/.env ]; then
+    bashio::log.warning "Found .env file in /app/.env - this might interfere with Home Assistant environment"
+    ls -la /app/.env
+fi
 
 # Create data directory and ensure data persistence
 mkdir -p /data
