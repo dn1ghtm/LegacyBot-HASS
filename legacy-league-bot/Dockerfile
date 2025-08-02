@@ -13,6 +13,9 @@ RUN npm ci --only=production
 
 COPY . .
 
+# Make run.sh executable and verify it exists
+RUN chmod +x /app/run.sh && ls -la /app/run.sh
+
 # Create user and group with automatic ID assignment
 RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
 
