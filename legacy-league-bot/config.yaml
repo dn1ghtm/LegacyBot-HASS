@@ -1,5 +1,5 @@
 name: "Legacy League Discord Bot"
-version: "1.0.11"
+version: "1.0.12"
 slug: "legacy-league-bot"
 description: "Discord bot for Legacy League with player value calculation and event management"
 arch:
@@ -23,8 +23,6 @@ map:
   - ssl:ro
 environment:
   NODE_ENV: production
-  DISCORD_TOKEN: "{{ discord_token }}"
-  LOG_LEVEL: "{{ log_level }}"
 options:
   discord_token: ""
   log_level: info

@@ -11,39 +11,62 @@ if [ -n "$HASSIO_TOKEN" ]; then
     DISCORD_TOKEN=""
     
     # Method 1: Try environment variable (if set by Home Assistant)
-    if [ -n "$DISCORD_TOKEN" ]; then
+    if [ -n "$DISCORD_TOKEN" ] && [ "$DISCORD_TOKEN" != "{{ discord_token }}" ]; then
         echo "✅ DISCORD_TOKEN found in environment"
     else
         echo "DISCORD_TOKEN not in environment, trying other methods..."
         
-        # Method 2: Try to read from config file if it exists
+        # Method 2: Try to read from config file if it exists (with error handling)
         if [ -f /data/options.json ]; then
             echo "Found options.json, extracting discord_token..."
-            DISCORD_TOKEN=$(grep -o '"discord_token":"[^"]*"' /data/options.json | cut -d'"' -f4)
-            if [ -n "$DISCORD_TOKEN" ]; then
-                echo "✅ DISCORD_TOKEN extracted from options.json"
+            if [ -r /data/options.json ]; then
+                DISCORD_TOKEN=$(grep -o '"discord_token":"[^"]*"' /data/options.json | cut -d'"' -f4)
+                if [ -n "$DISCORD_TOKEN" ]; then
+                    echo "✅ DISCORD_TOKEN extracted from options.json"
+                fi
+            else
+                echo "Cannot read options.json due to permissions"
             fi
         fi
         
         # Method 3: Try to read from environment file
         if [ -z "$DISCORD_TOKEN" ] && [ -f /data/.env ]; then
             echo "Found .env file, extracting DISCORD_TOKEN..."
-            DISCORD_TOKEN=$(grep "^DISCORD_TOKEN=" /data/.env | cut -d'=' -f2-)
-            if [ -n "$DISCORD_TOKEN" ]; then
-                echo "✅ DISCORD_TOKEN extracted from .env file"
+            if [ -r /data/.env ]; then
+                DISCORD_TOKEN=$(grep "^DISCORD_TOKEN=" /data/.env | cut -d'=' -f2-)
+                if [ -n "$DISCORD_TOKEN" ]; then
+                    echo "✅ DISCORD_TOKEN extracted from .env file"
+                fi
+            else
+                echo "Cannot read .env file due to permissions"
+            fi
+        fi
+        
+        # Method 4: Try to read from config directory
+        if [ -z "$DISCORD_TOKEN" ] && [ -f /config/options.json ]; then
+            echo "Found options.json in /config, extracting discord_token..."
+            if [ -r /config/options.json ]; then
+                DISCORD_TOKEN=$(grep -o '"discord_token":"[^"]*"' /config/options.json | cut -d'"' -f4)
+                if [ -n "$DISCORD_TOKEN" ]; then
+                    echo "✅ DISCORD_TOKEN extracted from /config/options.json"
+                fi
+            else
+                echo "Cannot read /config/options.json due to permissions"
             fi
         fi
     fi
     
     # Validate token
-    if [ -n "$DISCORD_TOKEN" ] && [ "$DISCORD_TOKEN" != "your_token_here" ]; then
+    if [ -n "$DISCORD_TOKEN" ] && [ "$DISCORD_TOKEN" != "your_token_here" ] && [ "$DISCORD_TOKEN" != "{{ discord_token }}" ]; then
         echo "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
         echo "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
         export DISCORD_TOKEN
     else
         echo "❌ DISCORD_TOKEN not found or invalid"
         echo "Please configure your Discord token in the Home Assistant add-on options"
+        echo "Current DISCORD_TOKEN value: '$DISCORD_TOKEN'"
         echo "Available environment variables: $(env | grep -E '(DISCORD|TOKEN)' || echo 'None found')"
+        echo "All environment variables: $(env | cut -d'=' -f1 | tr '\n' ' ')"
         exit 1
     fi
 else
