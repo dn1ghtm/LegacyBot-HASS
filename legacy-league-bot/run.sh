@@ -31,21 +31,24 @@ echo "LOG_LEVEL: $LOG_LEVEL"
 # Create data directory and ensure data persistence
 mkdir -p /data
 
-# Initialize bot_settings.json if it doesn't exist
+# Initialize bot_settings.json if it doesn't exist (run as root to avoid permission issues)
 if [ ! -f /data/bot_settings.json ]; then
     echo "Creating default bot_settings.json"
     cp /app/bot_settings.json /data/bot_settings.json 2>/dev/null || echo '{}' > /data/bot_settings.json
+    chown nodejs:nodejs /data/bot_settings.json
 fi
 
-# Initialize teams.json if it doesn't exist
+# Initialize teams.json if it doesn't exist (run as root to avoid permission issues)
 if [ ! -f /data/teams.json ]; then
     echo "Creating default teams.json"
     cp /app/teams.json /data/teams.json 2>/dev/null || echo '{}' > /data/teams.json
+    chown nodejs:nodejs /data/teams.json
 fi
 
 # Create symlinks for data persistence
 ln -sf /data/bot_settings.json /app/bot_settings.json
 ln -sf /data/teams.json /app/teams.json
 
-echo "Starting Discord bot..."
-exec node /app/index.js 
+# Switch to nodejs user for running the bot
+echo "Switching to nodejs user and starting Discord bot..."
+exec su nodejs -c "node /app/index.js" 
