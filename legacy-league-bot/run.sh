@@ -8,13 +8,15 @@ if [ -n "$HASSIO_TOKEN" ]; then
     echo "🏠 Running in Home Assistant environment"
     
     # Check if Discord token is configured via environment
-    if [ -n "$DISCORD_TOKEN" ]; then
+    if [ -n "$DISCORD_TOKEN" ] && [ "$DISCORD_TOKEN" != "{{ discord_token }}" ]; then
         echo "✅ DISCORD_TOKEN found in environment"
         echo "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
         echo "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
     else
-        echo "❌ DISCORD_TOKEN not found in environment"
-        echo "Available environment variables: $DISCORD_TOKEN"
+        echo "❌ DISCORD_TOKEN not found or invalid in environment"
+        echo "DISCORD_TOKEN value: '$DISCORD_TOKEN'"
+        echo "Available environment variables: $(env | grep -E '(DISCORD|TOKEN)' || echo 'None found')"
+        echo "All environment variables: $(env | cut -d'=' -f1 | tr '\n' ' ')"
         exit 1
     fi
 else
