@@ -1,48 +1,39 @@
-#!/bin/sh
+#!/usr/bin/with-contenv bashio
 
 echo "🚀 RUN.SH SCRIPT EXECUTED - Legacy League Discord Bot"
-echo "Starting Legacy League Discord Bot..."
+bashio::log.info "Starting Legacy League Discord Bot..."
 
-# Check if we're in Home Assistant environment
-if [ -n "$HASSIO_TOKEN" ]; then
-    echo "🏠 Running in Home Assistant environment"
-    
-    # Check if Discord token is configured via environment
-    if [ -n "$DISCORD_TOKEN" ] && [ "$DISCORD_TOKEN" != "{{ discord_token }}" ]; then
-        echo "✅ DISCORD_TOKEN found in environment"
-        echo "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
-        echo "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
-    else
-        echo "❌ DISCORD_TOKEN not found or invalid in environment"
-        echo "DISCORD_TOKEN value: '$DISCORD_TOKEN'"
-        echo "Available environment variables: $(env | grep -E '(DISCORD|TOKEN)' || echo 'None found')"
-        echo "All environment variables: $(env | cut -d'=' -f1 | tr '\n' ' ')"
-        exit 1
-    fi
-else
-    echo "Not running in Home Assistant environment"
+# Check if Discord token is configured
+if bashio::config.is_empty 'discord_token'; then
+    bashio::log.error "DISCORD_TOKEN is not set. Please configure it in the add-on options."
+    exit 1
 fi
 
-# Set environment variables
+# Set environment variables from Home Assistant configuration
+export DISCORD_TOKEN=$(bashio::config 'discord_token')
 export NODE_ENV=production
+LOG_LEVEL=$(bashio::config 'log_level')
 export LOG_LEVEL=${LOG_LEVEL:-info}
 
-echo "NODE_ENV: $NODE_ENV"
-echo "LOG_LEVEL: $LOG_LEVEL"
+# Debug logging
+bashio::log.info "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
+bashio::log.info "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
+bashio::log.info "NODE_ENV: $NODE_ENV"
+bashio::log.info "LOG_LEVEL: $LOG_LEVEL"
 
 # Create data directory and ensure data persistence
 mkdir -p /data
 
 # Initialize bot_settings.json if it doesn't exist (run as root to avoid permission issues)
 if [ ! -f /data/bot_settings.json ]; then
-    echo "Creating default bot_settings.json"
+    bashio::log.info "Creating default bot_settings.json"
     cp /app/bot_settings.json /data/bot_settings.json 2>/dev/null || echo '{}' > /data/bot_settings.json
     chown nodejs:nodejs /data/bot_settings.json
 fi
 
 # Initialize teams.json if it doesn't exist (run as root to avoid permission issues)
 if [ ! -f /data/teams.json ]; then
-    echo "Creating default teams.json"
+    bashio::log.info "Creating default teams.json"
     cp /app/teams.json /data/teams.json 2>/dev/null || echo '{}' > /data/teams.json
     chown nodejs:nodejs /data/teams.json
 fi
@@ -51,6 +42,5 @@ fi
 ln -sf /data/bot_settings.json /app/bot_settings.json
 ln -sf /data/teams.json /app/teams.json
 
-# Switch to nodejs user for running the bot
-echo "Switching to nodejs user and starting Discord bot..."
-exec su nodejs -c "node /app/index.js" 
+bashio::log.info "Starting Discord bot..."
+exec node /app/index.js 
