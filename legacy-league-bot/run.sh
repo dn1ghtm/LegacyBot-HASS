@@ -1,46 +1,82 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/sh
 
 echo "🚀 RUN.SH SCRIPT EXECUTED - Legacy League Discord Bot"
-bashio::log.info "Starting Legacy League Discord Bot..."
+echo "Starting Legacy League Discord Bot..."
 
-# Check if Discord token is configured
-if bashio::config.is_empty 'discord_token'; then
-    bashio::log.error "DISCORD_TOKEN is not set. Please configure it in the add-on options."
-    exit 1
+# Check if we're in Home Assistant environment
+if [ -n "$HASSIO_TOKEN" ]; then
+    echo "🏠 Running in Home Assistant environment"
+    
+    # Try to read Discord token from various sources
+    DISCORD_TOKEN=""
+    
+    # Method 1: Try environment variable (if set by Home Assistant)
+    if [ -n "$DISCORD_TOKEN" ]; then
+        echo "✅ DISCORD_TOKEN found in environment"
+    else
+        echo "DISCORD_TOKEN not in environment, trying other methods..."
+        
+        # Method 2: Try to read from config file if it exists
+        if [ -f /data/options.json ]; then
+            echo "Found options.json, extracting discord_token..."
+            DISCORD_TOKEN=$(grep -o '"discord_token":"[^"]*"' /data/options.json | cut -d'"' -f4)
+            if [ -n "$DISCORD_TOKEN" ]; then
+                echo "✅ DISCORD_TOKEN extracted from options.json"
+            fi
+        fi
+        
+        # Method 3: Try to read from environment file
+        if [ -z "$DISCORD_TOKEN" ] && [ -f /data/.env ]; then
+            echo "Found .env file, extracting DISCORD_TOKEN..."
+            DISCORD_TOKEN=$(grep "^DISCORD_TOKEN=" /data/.env | cut -d'=' -f2-)
+            if [ -n "$DISCORD_TOKEN" ]; then
+                echo "✅ DISCORD_TOKEN extracted from .env file"
+            fi
+        fi
+    fi
+    
+    # Validate token
+    if [ -n "$DISCORD_TOKEN" ] && [ "$DISCORD_TOKEN" != "your_token_here" ]; then
+        echo "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
+        echo "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
+        export DISCORD_TOKEN
+    else
+        echo "❌ DISCORD_TOKEN not found or invalid"
+        echo "Please configure your Discord token in the Home Assistant add-on options"
+        echo "Available environment variables: $(env | grep -E '(DISCORD|TOKEN)' || echo 'None found')"
+        exit 1
+    fi
+else
+    echo "Not running in Home Assistant environment"
 fi
 
-# Set environment variables from Home Assistant configuration
-export DISCORD_TOKEN=$(bashio::config 'discord_token')
+# Set environment variables
 export NODE_ENV=production
-LOG_LEVEL=$(bashio::config 'log_level')
 export LOG_LEVEL=${LOG_LEVEL:-info}
 
-# Debug logging
-bashio::log.info "DISCORD_TOKEN length: ${#DISCORD_TOKEN}"
-bashio::log.info "DISCORD_TOKEN first 10 chars: ${DISCORD_TOKEN:0:10}..."
-bashio::log.info "NODE_ENV: $NODE_ENV"
-bashio::log.info "LOG_LEVEL: $LOG_LEVEL"
+echo "NODE_ENV: $NODE_ENV"
+echo "LOG_LEVEL: $LOG_LEVEL"
 
 # Create data directory and ensure data persistence
 mkdir -p /data
 
 # Initialize bot_settings.json if it doesn't exist (run as root to avoid permission issues)
 if [ ! -f /data/bot_settings.json ]; then
-    bashio::log.info "Creating default bot_settings.json"
+    echo "Creating default bot_settings.json"
     cp /app/bot_settings.json /data/bot_settings.json 2>/dev/null || echo '{}' > /data/bot_settings.json
-    chown nodejs:nodejs /data/bot_settings.json
+    chown nodejs:nodejs /data/bot_settings.json 2>/dev/null || echo "Could not change ownership"
 fi
 
 # Initialize teams.json if it doesn't exist (run as root to avoid permission issues)
 if [ ! -f /data/teams.json ]; then
-    bashio::log.info "Creating default teams.json"
+    echo "Creating default teams.json"
     cp /app/teams.json /data/teams.json 2>/dev/null || echo '{}' > /data/teams.json
-    chown nodejs:nodejs /data/teams.json
+    chown nodejs:nodejs /data/teams.json 2>/dev/null || echo "Could not change ownership"
 fi
 
 # Create symlinks for data persistence
 ln -sf /data/bot_settings.json /app/bot_settings.json
 ln -sf /data/teams.json /app/teams.json
 
-bashio::log.info "Starting Discord bot..."
+echo "Starting Discord bot..."
 exec node /app/index.js 
